@@ -7,7 +7,7 @@
     Keeps vm_bundles (12GB+ Cowork VM) shared across profiles.
 .NOTES
     Version: 1.0.0
-    Requires: Windows 10/11, Claude Desktop (Microsoft Store or standalone)
+    Requires: Windows 10/11, Claude Desktop 1.1.x+ (Microsoft Store or standalone installer)
     Admin may be needed for Cowork VM sessiondata repair (diskpart)
 #>
 

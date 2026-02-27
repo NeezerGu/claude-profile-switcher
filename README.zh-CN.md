@@ -25,7 +25,7 @@ Claude Desktop 是 Electron 应用，认证信息分散存储在多个浏览器�
 ## 环境要求
 
 - Windows 10/11
-- Claude Desktop（Microsoft Store 版或独立安装版）
+- Claude Desktop 1.1.x+（Microsoft Store 版或独立安装版）
 - PowerShell 5.1+
 
 ## 快速开始

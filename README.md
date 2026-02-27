@@ -27,7 +27,7 @@ Claude Desktop is an Electron app that stores authentication in multiple browser
 ## Requirements
 
 - Windows 10/11
-- Claude Desktop (Microsoft Store or standalone)
+- Claude Desktop 1.1.x+ (Microsoft Store or standalone installer)
 - PowerShell 5.1+
 
 ## Quick Start
