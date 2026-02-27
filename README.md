@@ -1,5 +1,7 @@
 # Claude Profile Switcher
 
+> 🇨🇳 [中文说明](README.zh-CN.md)
+
 Switch between multiple Claude Desktop accounts without logging in/out each time.
 
 ## The Problem
