@@ -82,6 +82,17 @@ This uses `diskpart` to recreate the VHDX file. A UAC admin prompt will appear �
 
 **Do NOT delete `vm_bundles/` and reinstall** — that's 12GB+ of re-downloading and the reinstall won't recreate `sessiondata.vhdx` anyway.
 
+### Microsoft Store / MSIX installation
+
+For packaged installs, Claude Desktop can store its session under
+`%LOCALAPPDATA%\Packages\<Claude package family>\LocalCache\Roaming\Claude`
+instead of `%APPDATA%\Claude`. The switcher selects the packaged data directory
+when it contains a logged-in session, while keeping support for standalone installs.
+
+When switching, exit Claude Desktop from its system tray. The script waits for
+Claude itself to close, but does **not** stop Hyper-V services or terminate
+`vmwp` processes, which can belong to unrelated virtual machines.
+
 ### Profile switch didn't change account
 
 Make sure Claude Desktop is **fully closed** before switching (not just minimized). The script will prompt you to right-click the tray icon → Exit.
