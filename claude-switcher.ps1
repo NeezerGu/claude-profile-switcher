@@ -17,7 +17,33 @@ param(
 )
 
 # === Config ===
-$claudeDir = "$env:APPDATA\Claude"
+function Get-ClaudeDataDir {
+    $standaloneDir = Join-Path $env:APPDATA "Claude"
+    $msixDirs = @()
+
+    # The Store/MSIX edition keeps roaming app data under its package family.
+    foreach ($package in @(Get-AppxPackage -Name "Claude" -ErrorAction SilentlyContinue)) {
+        if ($package -and $package.PackageFamilyName) {
+            $msixDirs += (Join-Path $env:LOCALAPPDATA "Packages\$($package.PackageFamilyName)\LocalCache\Roaming\Claude")
+        }
+    }
+
+    # The launcher prefers MSIX, so prefer its existing logged-in session.
+    foreach ($dir in $msixDirs) {
+        if (Test-Path -LiteralPath (Join-Path $dir "config.json")) { return $dir }
+    }
+    if (Test-Path -LiteralPath (Join-Path $standaloneDir "config.json")) {
+        return $standaloneDir
+    }
+
+    # Before the first login, keep the best available directory as a fallback.
+    foreach ($dir in $msixDirs) {
+        if (Test-Path -LiteralPath $dir) { return $dir }
+    }
+    return $standaloneDir
+}
+
+$claudeDir = Get-ClaudeDataDir
 $instanceDir = "$env:USERPROFILE\.claude-instances"
 $currentFile = "$instanceDir\_current_profile"
 
@@ -111,33 +137,26 @@ function Stop-ClaudeGracefully {
         Write-OK "Claude Desktop is not running"
         return $true
     }
-    
+
     Write-Warn "Please close Claude Desktop manually:"
     Write-Warn "  RIGHT-CLICK system tray icon -> Exit"
     Write-Info "Waiting for Claude to exit... (no timeout)"
     Write-Host ""
-    
+
     $elapsed = 0
-    while ($true) {
+    while (Get-Process -Name "Claude" -ErrorAction SilentlyContinue) {
         Start-Sleep -Seconds 1
         $elapsed++
-        
-        $cAlive = [bool](Get-Process -Name "Claude" -ErrorAction SilentlyContinue)
-        $vAlive = [bool](Get-Process -Name "vmwp" -ErrorAction SilentlyContinue)
-        
-        if (-not $cAlive -and -not $vAlive) {
-            Write-OK "Claude + VM exited cleanly (${elapsed}s)"
-            Start-Sleep -Seconds 2
-            return $true
-        }
-        
         if ($elapsed % 30 -eq 0) {
-            $status = ""
-            if ($cAlive) { $status += "Claude " }
-            if ($vAlive) { $status += "vmwp " }
-            Write-Info "${elapsed}s - still waiting for: $status"
+            Write-Info "$($elapsed)s - still waiting for Claude"
         }
     }
+
+    # vmwp may be kept running by Hyper-V or other applications. Session storage
+    # is outside vm_bundles; never terminate VM workers or stop the global vmms service.
+    Start-Sleep -Seconds 2
+    Write-OK "Claude Desktop exited ($($elapsed)s)"
+    return $true
 }
 
 function Repair-CoworkVM {
